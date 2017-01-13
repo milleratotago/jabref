@@ -64,13 +64,18 @@ public class GroupAddRemoveDialog implements BaseAction {
 
         selection = panel.getSelectedEntries();
 
+        GroupTreeNode filteredGroups = groups.get().filter(selection, add);
+        if (filteredGroups == null) {
+            filteredGroups = groups.get();
+        }
+
         final JDialog diag = new JDialog(panel.frame(),
                 (add ? (move ? Localization.lang("Move to group") : Localization.lang("Add to group")) : Localization
                         .lang("Remove from group")),
                 true);
         JButton ok = new JButton(Localization.lang("OK"));
         JButton cancel = new JButton(Localization.lang("Cancel"));
-        tree = new JTree(new GroupTreeNodeViewModel(groups.get()));
+        tree = new JTree(new GroupTreeNodeViewModel(filteredGroups));
         tree.setCellRenderer(new AddRemoveGroupTreeCellRenderer());
         tree.setVisibleRowCount(22);
 
@@ -195,7 +200,7 @@ public class GroupAddRemoveDialog implements BaseAction {
      * @return true if this dialog's action can be performed on the group
      */
     private boolean checkGroupEnable(GroupTreeNodeViewModel node) {
-        return (add ? node.canAddEntries(selection) : node.canRemoveEntries(selection));
+        return (add ? node.getNode().canAddEntries(selection) : node.getNode().canRemoveEntries(selection));
     }
 
 

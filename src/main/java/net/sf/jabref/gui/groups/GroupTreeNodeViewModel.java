@@ -230,14 +230,6 @@ public class GroupTreeNodeViewModel implements Transferable, TreeNode {
         return new TreePath(pathToNode.stream().map(GroupTreeNodeViewModel::new).toArray());
     }
 
-    public boolean canAddEntries(List<BibEntry> entries) {
-        return getNode().getGroup() instanceof GroupEntryChanger && !getNode().getGroup().containsAll(entries);
-    }
-
-    public boolean canRemoveEntries(List<BibEntry> entries) {
-        return getNode().getGroup() instanceof GroupEntryChanger && getNode().getGroup().containsAny(entries);
-    }
-
     public void sortChildrenByName(boolean recursive) {
         getNode().sortChildren(
                 (node1, node2) -> node1.getGroup().getName().compareToIgnoreCase(node2.getGroup().getName()),

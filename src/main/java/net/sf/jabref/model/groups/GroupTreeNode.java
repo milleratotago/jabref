@@ -134,6 +134,48 @@ public class GroupTreeNode extends TreeNode<GroupTreeNode> {
         return Objects.hash(group);
     }
 
+    public boolean canAddEntries(List<BibEntry> entries) {
+        return (getGroup() instanceof GroupEntryChanger) && !getGroup().containsAll(entries);
+    }
+
+    public boolean canRemoveEntries(List<BibEntry> entries) {
+        return (getGroup() instanceof GroupEntryChanger) && getGroup().containsAny(entries);
+    }
+
+    public boolean candidateSubGroup(List<BibEntry> entries, boolean adding) {
+        if (isLeaf()) {
+            return (adding && canAddEntries(entries)) || (!adding && canRemoveEntries(entries));
+        }
+
+        for (GroupTreeNode child : getChildren()) {
+            if (child.candidateSubGroup(entries, adding)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public GroupTreeNode filter(List<BibEntry> entries, boolean adding) {
+
+        if (!candidateSubGroup(entries, adding)) {
+            return null;
+        }
+
+        GroupTreeNode newNode = new GroupTreeNode(this.group);
+
+        // Traverse children
+        for (GroupTreeNode child : getChildren()) {
+            GroupTreeNode childWithEntries = child.filter(entries, adding);
+            if (childWithEntries != null) {
+                newNode.addChild(childWithEntries);
+            }
+        }
+
+        return newNode;
+
+    }
+
     public List<GroupTreeNode> getContainingGroups(List<BibEntry> entries, boolean requireAll) {
         List<GroupTreeNode> groups = new ArrayList<>();
 
